@@ -1,5 +1,8 @@
 module SimpleSymbolicIntegration
+using TermInterface
 
-# Write your package code here.
+export integrate
+include("integration.jl")
+
 
 end
