@@ -2,9 +2,10 @@ module SymbolicsExt
 
 using SimpleSymbolicIntegration
 using Symbolics
+using TermInterface
 
-SimpleSymbolicIntegration.makeintegral(y::Num, iv, lower, upper, metadata=metadata(y)) = Integral(iv in (lower, upper))(y)
+SimpleSymbolicIntegration.makeintegral(::Type{Num}, y, iv, lower, upper, metadata=metadata(y)) = Integral(iv in (lower, upper))(y)
 
-SimpleSymbolicIntegration.integrate(p::Num, iv, from, to) = Symbolics.wrap(integrate(Symbolics.unwrap(p), iv, from, to))
+SimpleSymbolicIntegration.integrate(p::Num, iv, lower, upper) = Symbolics.wrap(integrate(Symbolics.unwrap(p), iv, lower, upper; symtype=Num))
 
 end # module

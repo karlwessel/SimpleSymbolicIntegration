@@ -44,18 +44,18 @@ function simplederivative(y, iv)
     return makederivative(y, iv)
 end
 
-makeintegral(y, iv, lower, upper, metadata=metadata(y)) = maketerm(typeof(y), integrate, [y, iv, from, to], metadata)
+makeintegral(symtype, y, iv, lower, upper, metadata=metadata(y)) = maketerm(symtype, integrate, [y, iv, lower, upper], metadata)
 
 occursin(p::Number, x) = isequal(p, x)
 
-function integrate(p, iv, from, to)
+function integrate(p, iv, lower, upper; symtype=typeof(p))
     hasx(p) = occursin(p, iv)
-    Integ(y) = integrate(y, iv, from, to)
-    integterm(y) = makeintegral(y, iv, from, to)
+    Integ(y) = integrate(y, iv, lower, upper)
+    integterm(y) = makeintegral(symtype, y, iv, lower, upper)
 
-    !hasx(p) && return p*(to - from)
+    !hasx(p) && return p*(upper - lower)
     if !iscall(p)
-        isequal(p, iv) && return 1//2*(to^2 - from^2)
+        isequal(p, iv) && return 1//2*(upper^2 - lower^2)
     else
         intmap = Dict([cos => sin,
             sin => x -> -cos(x),
@@ -84,7 +84,7 @@ function integrate(p, iv, from, to)
             antideriv = intmap[op]
             dy = simplederivative(y, iv)
             if !hasx(dy)
-                return (antideriv(substitute(y, Dict(iv => to))) - antideriv(substitute(y, Dict(iv => from)))) / dy
+                return (antideriv(substitute(y, Dict(iv => upper))) - antideriv(substitute(y, Dict(iv => lower)))) / dy
             end
         end
     end

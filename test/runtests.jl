@@ -41,6 +41,8 @@ end
 
     a, b = @syms a b
     @test isequal(((1 - cos(2*a)) / y), integrate(sin(y*x), x, 0, 2a/y))
+
+    @test repr(integrate(sin(x^2), x, 0, 1)) == "SimpleSymbolicIntegration.integrate(sin(x^2), x, 0, 1)"
 end
 
 @testset "Symbolics" begin
@@ -66,4 +68,6 @@ end
 
     a, b = @syms a b
     @test isequal(((1 - cos(2*a)) / y), integrate(sin(y*x), x, 0, 2a/y))
+
+    @test repr(integrate(sin(x^2), x, 0, 1)) == "Integral(x, 0 .. 1)(sin(x^2))"
 end
