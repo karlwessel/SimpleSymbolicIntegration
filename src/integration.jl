@@ -48,7 +48,21 @@ makeintegral(symtype, y, iv, lower, upper, metadata=metadata(y)) = maketerm(symt
 
 occursin(p::Number, x) = isequal(p, x)
 
-function integrate(p, iv, lower, upper; symtype=typeof(p))
+integraldb = Dict([cos => sin,
+            sin => x -> -cos(x),
+            cospi => x -> sinpi(x) / pi,
+            sinpi => x -> -cospi(x) / pi])
+
+"""
+    integrate(integrand, iv, lower_bound, upper_bound; userdb=Dict())
+
+Calculate the integral of `integrand` over `iv` from `lower_bound` to `upper_bound`.
+
+User defined indefinite integrals of a function can be passed via `userdb`. For
+example to define the indefinite integral of ``sin(x)`` one would pass
+`userdb=Dict(sin => x -> -cos(x))`.
+"""
+function integrate(p, iv, lower, upper; userdb=Dict(), symtype=typeof(p))
     hasx(p) = occursin(p, iv)
     Integ(y) = integrate(y, iv, lower, upper)
     integterm(y) = makeintegral(symtype, y, iv, lower, upper)
@@ -57,10 +71,7 @@ function integrate(p, iv, lower, upper; symtype=typeof(p))
     if !iscall(p)
         isequal(p, iv) && return 1//2*(upper^2 - lower^2)
     else
-        intmap = Dict([cos => sin,
-            sin => x -> -cos(x),
-            cospi => x -> sinpi(x) / pi,
-            sinpi => x -> -cospi(x) / pi])
+        intmap = merge(integraldb, userdb)
 
         op = operation(p)
         if op == *
