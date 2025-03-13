@@ -43,12 +43,15 @@ function simplederivative(y, iv)
     end
     return makederivative(y, iv)
 end
+
+makeintegral(y, iv, lower, upper, metadata=metadata(y)) = maketerm(typeof(y), integrate, [y, iv, from, to], metadata)
+
 occursin(p::Number, x) = isequal(p, x)
 
 function integrate(p, iv, from, to)
     hasx(p) = occursin(p, iv)
     Integ(y) = integrate(y, iv, from, to)
-    integterm(y) = maketerm(typeof(p), integrate, [y, iv, from, to], metadata(p))
+    integterm(y) = makeintegral(y, iv, from, to)
 
     !hasx(p) && return p*(to - from)
     if !iscall(p)
