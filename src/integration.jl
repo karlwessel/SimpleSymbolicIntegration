@@ -8,6 +8,41 @@ function occursin(p, x)
     return false
 end
 
+makederivative(y, iv, metadata=metadata(y)) = maketerm(typeof(y), simplederivative, [y, iv], metadata)
+
+"""
+    simplederivative(term, iv)
+
+Only implements derivatives to the point where it is able to derive all
+expressions whose derivative is constant with respect to the variable to
+derive for.
+
+This is used to handle integrals of functions whichs arguments are linear in
+the integration variable. For example ``sin(2x+3)``.
+"""
+function simplederivative(y, iv)
+    !occursin(y, iv) && return zero(y)
+    if iscall(y)
+        D(x) = simplederivative(x, iv)
+        op = operation(y)
+        if op == +
+            return +(map(D, arguments(y))...)
+        elseif op == *
+            if arity(y) == 2
+                a, b = arguments(y)
+                return a*D(b) + D(a)*b
+            else
+                @assert arity(y) > 2
+                args = arguments(y)
+                a, others = first(args), *(args[begin+1:end]...)
+                return a * D(others) + D(a)*others
+            end
+        end
+    else
+        return isequal(y, iv) ? one(y) : zero(y)
+    end
+    return makederivative(y, iv)
+end
 occursin(p::Number, x) = isequal(p, x)
 
 function integrate(p, iv, from, to)
@@ -44,7 +79,10 @@ function integrate(p, iv, from, to)
         elseif haskey(intmap, op)
             y = only(arguments(p))
             antideriv = intmap[op]
-            isequal(y, iv) && return antideriv(to) - antideriv(from)
+            dy = simplederivative(y, iv)
+            if !hasx(dy)
+                return (antideriv(substitute(y, Dict(iv => to))) - antideriv(substitute(y, Dict(iv => from)))) / dy
+            end
         end
     end
 
