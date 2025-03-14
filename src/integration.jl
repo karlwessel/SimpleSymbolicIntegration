@@ -4,6 +4,8 @@ struct Integral
     upper
 end
 
+(i::Integral)(x; userdb=Dict()) = integrate(x, i.iv, i.lower, i.upper; userdb)
+
 Base.show(io::IO, i::Integral) = print(io, "∫d$(i.iv)[$(i.lower) to $(i.upper)]")
 SymbolicUtils.show_call(io::IO, i::Integral, args) = print(io, "∫d$(i.iv)[$(i.lower) to $(i.upper)]($(only(args)))")
 
@@ -78,6 +80,29 @@ function unknownintegrals(ex)
         return unique(unknown)
     end
     return []
+end
+
+"""
+    expandintegrals(expression)
+
+Try to integrate all integrals in the passed expression.
+
+User defined indefinite integrals of a function can be passed via `userdb`. For
+example to define the indefinite integral of ``sin(x)`` one would pass
+`userdb=Dict(sin => x -> -cos(x))`.
+"""
+function expandintegrals(ex; userdb=Dict())
+    localexpand(x) = expandintegrals(x; userdb)
+    if iscall(ex)
+        op = operation(ex)
+        args = map(localexpand, arguments(ex))
+        if isintegral(ex)
+            ex = op(args...; userdb)
+        else
+            ex = op(args...)
+        end
+    end
+    return ex
 end
 
 """

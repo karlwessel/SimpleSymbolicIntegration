@@ -8,12 +8,14 @@ SymbolicUtils = "d1185830-fcd6-423d-90d6-eec64667417b"
 TermInterface = "8ea1fca8-c5ef-4a55-8b96-4e9afe9c9a3c"
 
 [weakdeps]
+DomainSets = "5b8099bc-c8ec-5219-889f-1d9e522a28bf"
 Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
 
 [extensions]
-SymbolicsExt = "Symbolics"
+SymbolicsExt = ["Symbolics", "DomainSets"]
 
 [compat]
+DomainSets = "0.7.15"
 SymbolicUtils = "3.18.0"
 Symbolics = "6.29.2"
 TermInterface = "2.0.0"
@@ -21,8 +23,8 @@ julia = "1.10"
 
 [extras]
 SymbolicUtils = "d1185830-fcd6-423d-90d6-eec64667417b"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
 test = ["Test", "SymbolicUtils", "Symbolics"]
