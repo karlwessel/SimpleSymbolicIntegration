@@ -47,6 +47,9 @@ end
 
     @test isequal(0.5, integrate(sin(x), x, 0, 1; userdb=Dict(sin => x -> x/2)))
     @test isequal(1, integrate(x + sin(x), x, 0, 1; userdb=Dict(sin => x -> x/2)))
+
+    @test isempty(unknownintegrals(integrate(x + sin(x), x, 0, 1)))
+    @test repr(only(unknownintegrals(integrate(x + sin(x^2), x, 0, 1)))) == "∫dx[0 to 1](sin(x^2))"
 end
 
 @testset "Symbolics" begin
@@ -78,4 +81,7 @@ end
 
     @test isequal(0.5, integrate(sin(x), x, 0, 1; userdb=Dict(sin => x -> x/2)))
     @test isequal(1, integrate(x + sin(x), x, 0, 1; userdb=Dict(sin => x -> x/2)))
+
+    @test isempty(unknownintegrals(integrate(x + sin(x), x, 0, 1)))
+    @test repr(only(unknownintegrals(integrate(x + sin(x^2), x, 0, 1)))) == "Integral(x, 0 .. 1)(sin(x^2))"
 end

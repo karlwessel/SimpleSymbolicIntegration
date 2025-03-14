@@ -2,7 +2,7 @@ module SimpleSymbolicIntegration
 using TermInterface
 
 using SymbolicUtils
-export integrate
+export integrate, unknownintegrals
 include("integration.jl")
 
 

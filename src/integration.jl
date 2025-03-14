@@ -62,6 +62,24 @@ integraldb = Dict([cos => sin,
             cospi => x -> sinpi(x) / pi,
             sinpi => x -> -cospi(x) / pi])
 
+isintegral(ex) = operation(ex) isa Integral
+
+"""
+    unknownintegrals(expression)
+
+Return all unique integrals in the passed expression.
+"""
+function unknownintegrals(ex)
+    if iscall(ex)
+        unknown = vcat(map(unknownintegrals, arguments(ex))...)
+        if isintegral(ex)
+            push!(unknown, ex)
+        end
+        return unique(unknown)
+    end
+    return []
+end
+
 """
     integrate(integrand, iv, lower_bound, upper_bound; userdb=Dict())
 
