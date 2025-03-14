@@ -64,7 +64,7 @@ example to define the indefinite integral of ``sin(x)`` one would pass
 """
 function integrate(p, iv, lower, upper; userdb=Dict(), symtype=typeof(p))
     hasx(p) = occursin(p, iv)
-    Integ(y) = integrate(y, iv, lower, upper)
+    Integ(y) = integrate(y, iv, lower, upper; userdb, symtype)
     integterm(y) = makeintegral(symtype, y, iv, lower, upper)
 
     !hasx(p) && return p*(upper - lower)
