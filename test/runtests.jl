@@ -55,6 +55,7 @@ end
     @test repr(only(unknownintegrals(makeintegral(sin(x), x, 0, pi)))) == "∫dx[0 to π](sin(x))"
 
     @test isequal(2, expandintegrals(makeintegral(sin(x), x, 0, pi)))
+    @test isequal(4, expandintegrals(makeintegral(makeintegral(sin(x), x, 0, pi), x, 0, 2)))
     @test repr(expandintegrals(unresolved)) == "(1//2) + ∫dx[0 to 1](exp(x))"
     @test isequal(2.218281828459045, expandintegrals(unresolved; userdb=Dict(exp => exp)))
 end
@@ -95,6 +96,7 @@ end
     @test repr(only(unknownintegrals(Symbolics.wrap(makeintegral(sin(x), x, 0, pi))))) == "Integral(x, 0.0 .. 3.141592653589793)(sin(x))"
 
     @test isequal(2, expandintegrals(Symbolics.wrap(makeintegral(sin(x), x, 0, pi))))
+    @test isequal(4, expandintegrals(Symbolics.wrap(makeintegral(makeintegral(sin(x), x, 0, pi), x, 0, 2))))
     @test repr(expandintegrals(unresolved)) == "(1//2) + Integral(x, 0 .. 1)(exp(x))"
     @test isequal(2.218281828459045, expandintegrals(unresolved; userdb=Dict(exp => exp)))
 end

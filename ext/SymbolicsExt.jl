@@ -25,7 +25,7 @@ function _unknownintegrals(ex)
     return []
 end
 
-SimpleSymbolicIntegration.expandintegrals(ex::Num; userdb=Dict()) = wrap.(_expandintegrals(unwrap(ex); userdb))
+SimpleSymbolicIntegration.expandintegrals(ex::Num; userdb=Dict()) = wrap(_expandintegrals(unwrap(ex); userdb))
 
 function _expandintegrals(ex; userdb=Dict())
     localexpand(x) = _expandintegrals(x; userdb)
@@ -36,7 +36,7 @@ function _expandintegrals(ex; userdb=Dict())
             op = operation(ex)
             iv = op.domain.variables
             a, b = DomainSets.endpoints(op.domain.domain)
-            integrand = only(arguments(ex))
+            integrand = only(args)
             ex = SimpleSymbolicIntegration.integrate(integrand, iv, a, b; userdb)
         else
             ex = op(args...)
