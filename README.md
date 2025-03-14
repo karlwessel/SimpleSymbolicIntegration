@@ -22,9 +22,24 @@ using Symbolics
 integrate(sin(2x), x, 0, pi)
 ```
 
+## Get unknown integrals
+Sometimes, when equations are really long, it is useful to get a list of the unknown
+integrals in the equation.
+```julia
+unknownintegrals(integrate(exp(2x + 1), x, 0, 1))
+```
+
+Then one can solve them by some substitution or telling the
+integration procedure the antiderivative of the unknown integral.
+
 ## Define own antiderivatives
 ```julia
 integrate(exp(2x + 1), x, 0, 1; userdb=Dict(exp => exp))
 integrate(8*sinpi(2x + 2), x, 0, 1; userdb=Dict(sinpi => x -> -cospi(x) / pi))
 ```
 
+## Expand all derivatives in an equation
+```julia
+eq = Integral(x in (0, pi))(sin(x))
+expandintegrals(eq)
+```
