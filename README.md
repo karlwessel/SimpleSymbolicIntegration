@@ -1,6 +1,6 @@
 # SimpleSymbolicIntegration
 
-Provides symbolic integration of simple functions like $sin$ or $cos$ for Symbolics, SymbolicUtils and any other Symbolic library implementing TermInterface.
+Provides symbolic integration of simple functions like $\sin(x)$ or $\cos(x)$ for Symbolics, SymbolicUtils and any other Symbolic library implementing TermInterface.
 
 Does not really provide integration for functions itself, but instead users can easily define the antiderivatives of the functions they need themself and this library will take care of the rest.
 
@@ -43,3 +43,8 @@ integrate(8*sinpi(2x + 2), x, 0, 1; userdb=Dict(sinpi => x -> -cospi(x) / pi))
 eq = Integral(x in (0, pi))(sin(x))
 expandintegrals(eq)
 ```
+
+# Related packages
+[SymbolicNumericIntegration](https://github.com/SciML/SymbolicNumericIntegration.jl): 
+Can handle more complicated integrands but the results aren't always reliable and 
+computations can take some time.
