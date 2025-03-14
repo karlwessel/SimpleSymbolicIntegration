@@ -38,7 +38,7 @@ integrate(exp(2x + 1), x, 0, 1; userdb=Dict(exp => exp))
 integrate(8*sinpi(2x + 2), x, 0, 1; userdb=Dict(sinpi => x -> -cospi(x) / pi))
 ```
 
-## Expand all derivatives in an equation
+## Expand all integrals in an equation
 ```julia
 eq = Integral(x in (0, pi))(sin(x))
 expandintegrals(eq)
