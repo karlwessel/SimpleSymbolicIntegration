@@ -71,9 +71,9 @@ User defined indefinite integrals of a function can be passed via `userdb`. For
 example to define the indefinite integral of ``sin(x)`` one would pass
 `userdb=Dict(sin => x -> -cos(x))`.
 """
-function integrate(p, iv, lower, upper; userdb=Dict(), makeintegral=makeintegral)
+function integrate(p, iv, lower, upper; userdb=Dict())
     hasx(p) = occursin(p, iv)
-    Integ(y) = integrate(y, iv, lower, upper; userdb, makeintegral)
+    Integ(y) = integrate(y, iv, lower, upper; userdb)
     integterm(y) = makeintegral(y, iv, lower, upper)
 
     !hasx(p) && return p*(upper - lower)
