@@ -42,8 +42,8 @@ end
     a, b = @syms a b
     @test isequal(((1 - cos(2*a)) / y), integrate(sin(y*x), x, 0, 2a/y))
 
-    @test repr(integrate(sin(x^2), x, 0, 1)) == "SimpleSymbolicIntegration.integrate(sin(x^2), x, 0, 1)"
-    @test repr(integrate(x + sin(x^2), x, 0, 1)) == "(1//2) + SimpleSymbolicIntegration.integrate(sin(x^2), x, 0, 1)"
+    @test repr(integrate(sin(x^2), x, 0, 1)) == "∫dx[0 to 1](sin(x^2))"
+    @test repr(integrate(x + sin(x^2), x, 0, 1)) == "(1//2) + ∫dx[0 to 1](sin(x^2))"
 
     @test isequal(0.5, integrate(sin(x), x, 0, 1; userdb=Dict(sin => x -> x/2)))
     @test isequal(1, integrate(x + sin(x), x, 0, 1; userdb=Dict(sin => x -> x/2)))

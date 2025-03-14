@@ -1,3 +1,12 @@
+struct Integral
+    iv
+    lower
+    upper
+end
+
+Base.show(io::IO, i::Integral) = print(io, "∫d$(i.iv)[$(i.lower) to $(i.upper)]")
+SymbolicUtils.show_call(io::IO, i::Integral, args) = print(io, "∫d$(i.iv)[$(i.lower) to $(i.upper)]($(only(args)))")
+
 function occursin(p, x)
     isequal(p, x) && return true
 
@@ -44,7 +53,7 @@ function simplederivative(y, iv)
     return makederivative(y, iv)
 end
 
-makeintegral(symtype, y, iv, lower, upper, metadata=metadata(y)) = maketerm(symtype, integrate, [y, iv, lower, upper], metadata)
+makeintegral(y, iv, lower, upper, metadata=metadata(y)) = maketerm(typeof(y), Integral(iv, lower, upper), [y], metadata)
 
 occursin(p::Number, x) = isequal(p, x)
 
@@ -62,10 +71,10 @@ User defined indefinite integrals of a function can be passed via `userdb`. For
 example to define the indefinite integral of ``sin(x)`` one would pass
 `userdb=Dict(sin => x -> -cos(x))`.
 """
-function integrate(p, iv, lower, upper; userdb=Dict(), symtype=typeof(p))
+function integrate(p, iv, lower, upper; userdb=Dict(), makeintegral=makeintegral)
     hasx(p) = occursin(p, iv)
-    Integ(y) = integrate(y, iv, lower, upper; userdb, symtype)
-    integterm(y) = makeintegral(symtype, y, iv, lower, upper)
+    Integ(y) = integrate(y, iv, lower, upper; userdb, makeintegral)
+    integterm(y) = makeintegral(y, iv, lower, upper)
 
     !hasx(p) && return p*(upper - lower)
     if !iscall(p)
