@@ -10,13 +10,11 @@ Base.show(io::IO, i::Integral) = print(io, "∫d$(i.iv)[$(i.lower) to $(i.upper)
 SymbolicUtils.show_call(io::IO, i::Integral, args) = print(io, "∫d$(i.iv)[$(i.lower) to $(i.upper)]($(only(args)))")
 
 function occursin(p, x)
-    isequal(p, x) && return true
-
-    !iscall(p) && return false
-    for a in arguments(p)
-        occursin(a, x) && return true
-    end
-    return false
+    if iscall(p)
+		return any(occursin(a, x) for a in arguments(p))
+	else
+		return isequal(p, x)
+	end
 end
 
 makederivative(y, iv, metadata=metadata(y)) = maketerm(typeof(y), simplederivative, [y, iv], metadata)

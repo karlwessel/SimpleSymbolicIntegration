@@ -27,8 +27,14 @@ end
     @test !occursin(sin(y), x)
 
     @test 2 == integrate(x, x, 0, 2)
+    @test isequal(0.5, integrate(x/pi^2, x, 0, pi))
     @test isequal(2y, integrate(y, x, 0, 2))
     @test isequal(2y, integrate(y*sin(x), x, 0, pi))
+    
+    @test isequal(2y*im, integrate(im*y*sin(x), x, 0, pi))
+    @test isequal(1//2 + 2y*im, integrate(x/pi^2 + im*y*sin(x), x, 0, pi))
+    @test isequal(1//2*y + 2y*im, integrate(y*(x/pi^2 + im*sin(x)), x, 0, pi))
+    
     @test iszero(integrate(sin(x), x, 0, 2pi))
     @test isequal(2, integrate(sin(x), x, 0, pi))
     @test isequal(2(sin(y) + 2), integrate(sin(y)+2, x, 0, 2))
@@ -52,10 +58,18 @@ end
 
     @test isempty(unknownintegrals(integrate(x + sin(x), x, 0, 1)))
     @test repr(only(unknownintegrals(unresolved))) == "∫dx[0 to 1](exp(x))"
+    
+    @test repr(only(unknownintegrals(makeintegral(im*sin(x), x, 0, pi)))) == "∫dx[0 to π]((im)*sin(x))"
+    
     @test repr(only(unknownintegrals(makeintegral(sin(x), x, 0, pi)))) == "∫dx[0 to π](sin(x))"
 
     @test isequal(2, expandintegrals(makeintegral(sin(x), x, 0, pi)))
+    @test isequal(2im, expandintegrals(makeintegral(im*sin(x), x, 0, pi)))
     @test isequal(4, expandintegrals(makeintegral(makeintegral(sin(x), x, 0, pi), x, 0, 2)))
+    
+    @test isequal(4im, expandintegrals(makeintegral(makeintegral(im*sin(x), x, 0, pi), x, 0, 2)))
+    @test isequal(1 + 4im, expandintegrals(makeintegral(makeintegral(x/pi^2 + im*sin(x), x, 0, pi), x, 0, 2)))
+    
     @test repr(expandintegrals(unresolved)) == "(1//2) + ∫dx[0 to 1](exp(x))"
     @test isequal(2.218281828459045, expandintegrals(unresolved; userdb=Dict(exp => exp)))
 end
@@ -71,6 +85,11 @@ end
     @test 2 == integrate(x, x, 0, 2)
     @test isequal(2y, integrate(y, x, 0, 2))
     @test isequal(2y, integrate(y*sin(x), x, 0, pi))
+    
+    @test isequal(2y*im, integrate(im*y*sin(x), x, 0, pi))
+    @test isequal(1//2 + 2y*im, integrate(x/pi^2 + im*y*sin(x), x, 0, pi))
+    @test isequal(1//2*y + 2y*im, integrate(y*(x/pi^2 + im*sin(x)), x, 0, pi))
+    
     @test iszero(integrate(sin(x), x, 0, 2pi))
     @test isequal(2(sin(y) + 2), integrate(sin(y)+2, x, 0, 2))
     @test isequal(2y + 2, integrate(x + y, x, 0, 2))
@@ -93,10 +112,19 @@ end
 
     @test isempty(unknownintegrals(integrate(x + sin(x), x, 0, 1)))
     @test repr(only(unknownintegrals(unresolved))) == "Integral(x, 0 .. 1)(exp(x))"
-    @test repr(only(unknownintegrals(Symbolics.wrap(makeintegral(sin(x), x, 0, pi))))) == "Integral(x, 0.0 .. 3.141592653589793)(sin(x))"
+    
+    @test repr(only(unknownintegrals(integrate(im*exp(x), x, 0, 1)))) == "Integral(x, 0 .. 1)(exp(x))"
+    
+    @test repr(only(unknownintegrals((makeintegral(sin(x), x, 0, pi))))) == "Integral(x, 0.0 .. 3.141592653589793)(sin(x))"
 
-    @test isequal(2, expandintegrals(Symbolics.wrap(makeintegral(sin(x), x, 0, pi))))
-    @test isequal(4, expandintegrals(Symbolics.wrap(makeintegral(makeintegral(sin(x), x, 0, pi), x, 0, 2))))
+    @test isequal(2, expandintegrals(makeintegral(sin(x), x, 0, pi)))
+    @test isequal(2im, expandintegrals(makeintegral(im*sin(x), x, 0, pi)))
+    @test isequal(2im, expandintegrals(Integral(x in (0, pi))(im*sin(x))))
+    @test isequal(4, expandintegrals(makeintegral(makeintegral(sin(x), x, 0, pi), x, 0, 2)))
+    
+    @test isequal(4im, expandintegrals(makeintegral(makeintegral(im*sin(x), x, 0, pi), x, 0, 2)))
+    @test isequal(1 + 4im, expandintegrals(makeintegral(makeintegral(x/pi^2 + im*sin(x), x, 0, pi), x, 0, 2)))
+    
     @test repr(expandintegrals(unresolved)) == "(1//2) + Integral(x, 0 .. 1)(exp(x))"
     @test isequal(2.218281828459045, expandintegrals(unresolved; userdb=Dict(exp => exp)))
 end
