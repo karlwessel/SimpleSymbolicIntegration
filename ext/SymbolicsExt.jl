@@ -46,12 +46,11 @@ expandintegrals(p::Complex{Num}; userdb=Dict()) = wrap(Symbolics.ComplexTerm{Rea
 expandintegrals(imag(p); userdb)))
 
 function _expandintegrals(ex; userdb=Dict())
-    localexpand(x) = _expandintegrals(x; userdb)
     if iscall(ex)
+        localexpand(x) = _expandintegrals(x; userdb)
         op = operation(ex)
         args = map(localexpand, arguments(ex))
         if isintegral(ex)
-            op = operation(ex)
             iv = op.domain.variables
             a, b = DomainSets.endpoints(op.domain.domain)
             integrand = only(args)

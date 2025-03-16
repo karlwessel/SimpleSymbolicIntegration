@@ -57,7 +57,7 @@ makeintegral(y, iv, lower, upper, metadata=metadata(y)) = maketerm(typeof(y), In
 
 occursin(p::Number, x) = isequal(p, x)
 
-integraldb = Dict([cos => sin,
+const integraldb::Dict{Function, Function} = Dict([cos => sin,
             sin => x -> -cos(x),
             cospi => x -> sinpi(x) / pi,
             sinpi => x -> -cospi(x) / pi])
@@ -142,8 +142,6 @@ function integrate(p, iv, lower, upper; userdb=Dict())
     if !iscall(p)
         isequal(p, iv) && return 1//2*(upper^2 - lower^2)
     else
-        intmap = merge(integraldb, userdb)
-
         op = operation(p)
         if op == *
             # prod(fi(x) + ci)*c
@@ -187,12 +185,15 @@ function integrate(p, iv, lower, upper; userdb=Dict())
             end
         elseif op == +
             return sum(map(Integ, arguments(p)))
-        elseif haskey(intmap, op)
-            y = only(arguments(p))
-            antideriv = intmap[op]
-            dy = simplederivative(y, iv)
-            if !hasx(dy)
-                return (antideriv(substitute(y, Dict(iv => upper))) - antideriv(substitute(y, Dict(iv => lower)))) / dy
+        else
+            intmap = merge(integraldb, userdb)
+            if haskey(intmap, op)
+                y = only(arguments(p))
+                antideriv = intmap[op]
+                dy = simplederivative(y, iv)
+                if !hasx(dy)
+                    return (antideriv(substitute(y, Dict(iv => upper))) - antideriv(substitute(y, Dict(iv => lower)))) / dy
+                end
             end
         end
     end
