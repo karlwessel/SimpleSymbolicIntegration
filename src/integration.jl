@@ -11,10 +11,10 @@ SymbolicUtils.show_call(io::IO, i::Integral, args) = print(io, "∫d$(i.iv)[$(i.
 
 function occursin(p, x)
     if iscall(p)
-		return any(occursin(a, x) for a in arguments(p))
-	else
-		return isequal(p, x)
-	end
+        return any(occursin(a, x) for a in arguments(p))
+    else
+        return isequal(p, x)
+    end
 end
 
 makederivative(y, iv, metadata=metadata(y)) = maketerm(typeof(y), simplederivative, [y, iv], metadata)
@@ -103,6 +103,27 @@ function expandintegrals(ex; userdb=Dict())
     return ex
 end
 
+terms(x) = iscall(x) && (operation(x) == +) ? arguments(x) : [x]
+
+function splitprod(x, hasx)
+    (!iscall(x) || operation(x) != *) && return hasx(x) ? ([x], 1) : ([], x)
+
+    args = arguments(x)
+    withxidx = hasx.(args)
+    argswithx = args[withxidx]
+    argswithoutx = args[(.!)(withxidx)]
+    c = isempty(argswithoutx) ? 1 : *(argswithoutx...)
+    return argswithx, c
+end
+
+function expandprod(x, hasx)
+    argswithx, c = splitprod(x, hasx)
+
+    isempty(argswithx) && return [], c
+    ts = terms.(argswithx)
+    return Iterators.product(ts...), c
+end
+
 """
     integrate(integrand, iv, lower_bound, upper_bound; userdb=Dict())
 
@@ -125,18 +146,44 @@ function integrate(p, iv, lower, upper; userdb=Dict())
 
         op = operation(p)
         if op == *
-            args = arguments(p)
-            withxidx = hasx.(args)
-            argswithx = args[withxidx]
-            argswithoutx = args[(.!)(withxidx)]
-            if length(argswithx) > 1
-                return *(integterm(*(argswithx...)), argswithoutx...)
+            # prod(fi(x) + ci)*c
+            ts, c = expandprod(p, hasx)
+            if length(ts) == 1
+                facs = only(ts)
+                if length(facs) == 1
+                    return c*Integ(only(facs))
+                else
+                    return c*integterm(prod(facs))
+                end
+            else
+                return c*sum(Integ.(prod.(ts)))
             end
-            return *(Integ(only(argswithx)), argswithoutx...)
         elseif op == /
             nom, denom = arguments(p)
-            if !hasx(denom)
-                return Integ(nom) / denom
+            fsd, cd = splitprod(denom, hasx)
+            if isempty(fsd)
+                # f(x) / const
+                return Integ(nom) / cd
+            else
+                gofx = prod(fsd)
+                fsn, cn = splitprod(nom, hasx)
+                if isempty(fsn)
+                    # cn / (g(x)*cd)
+                    if isequal(gofx, iv)
+                        # const / x*cd
+                        return cn / cd * (log(abs(upper)) - log(abs(lower)))
+                    else
+                        return cn / cd * integterm(1/gofx)
+                    end
+                else
+                    # f(x)*cn / (g(x)*cd)
+                    ts = Iterators.product(terms.(fsn)...)
+                    if length(ts) == 1
+                        return cn / cd * integterm(prod(only(ts)) / gofx)
+                    else
+                        return cn / cd * sum(Integ.(prod.(ts) ./ gofx))
+                    end
+                end
             end
         elseif op == +
             return sum(map(Integ, arguments(p)))

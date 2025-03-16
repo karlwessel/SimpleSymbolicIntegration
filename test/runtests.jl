@@ -34,6 +34,13 @@ end
     @test isequal(0.5, intx0topi(x/pi^2))
     @test isequal(2y, intx0to2(y))
     @test isequal(2y, intx0topi(y*sin(x)))
+    @test isequal(log(2), integrate(1/x, x, 1, 2))
+
+    # integrands containing products
+    @test isequal(log(2) - 4, integrate((x+1)*(1/x - 2), x, 1, 2))
+    @test isapprox(1//2 - log(4), integrate(((x+1)*(x - 2)) / x, x, 1, 2))
+    @test isequal(log(2) + 1, integrate((x+1)/x, x, 1, 2))
+    @test isequal(log(4) + 2, integrate((2(x+1))/x, x, 1, 2))
     
     # complex integrands
     @test isequal(2y*im, intx0topi(im*y*sin(x)))
@@ -58,6 +65,8 @@ end
 	# unresolved integrals
     unresolved = intx0to2(x + exp(x))
     @test repr(intx0to2(sin(x^2))) == "∫dx[0 to 2](sin(x^2))"
+    @test repr(intx0to2(1/sin(x))) == "∫dx[0 to 2](1 / sin(x))"
+    @test repr(intx0to2(sin(x)/x)) == "∫dx[0 to 2](sin(x) / x)"
     @test repr(unresolved) == "(2//1) + ∫dx[0 to 2](exp(x))"
 
 	# resolve integrals using userdb
@@ -110,6 +119,10 @@ end
     @test isequal(0, intx0topi(sin(2x)))
     @test isequal(2, intx0topi(cos((1//2)*x)))
     @test isequal(2/y, intx0topi(sin(x)/y))
+    @test isequal(log(2), integrate(1/x, x, 1, 2))
+
+    # integrands containing products
+    @test isequal(log(2) - 4, integrate((x+1)*(1/x - 2), x, 1, 2))
 
     @test isequal(2/y, intx0topi(sinpi(x/pi)/y))
     @test isequal(2, intx0topi(cospi((1//2)*x/pi)))
